@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:flutter/services.dart';
 
 class TerminalCard extends StatelessWidget {
-  const TerminalCard({super.key});
+  final String name;
+  final String email;
+
+  const TerminalCard({super.key, required this.name, required this.email});
 
   @override
   Widget build(BuildContext context) {
@@ -20,42 +25,46 @@ class TerminalCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Details',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 20),
-              ],
+          const Padding(
+            padding: EdgeInsets.all(20),
+            child: Text(
+              'Details',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
           ),
-          InkWell(
-            onTap: () {},
-            child: Container(
-              margin: EdgeInsets.symmetric(horizontal: 10),
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              decoration: BoxDecoration(color: const Color(0xFF8B1F9C)),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
-                  Icon(Icons.analytics_outlined, color: Colors.white),
-                  SizedBox(width: 8),
-                  Text(
-                    'Profile Details',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
+
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: const Color(0xFF8B1F9C),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.person, color: Colors.white),
+                const SizedBox(width: 12),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      name,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  SizedBox(width: 8),
-                  // Icon(Icons.arrow_forward, color: Colors.white, size: 20),
-                ],
-              ),
+                    Text(
+                      email,
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         ],

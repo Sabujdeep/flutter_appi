@@ -1,0 +1,62 @@
+[
+  {
+    "id": 1,
+    "firstName": "Aarav",
+    "lastName": "Sharma",
+    "age": 28,
+    "gender": "Male",
+    "email": "aarav.sharma@example.com",
+    "phone": "+91-9876543210",
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "country": "India",
+    "occupation": "Software Engineer",
+    "profileImage": "https://example.com/images/aarav.png",
+    "isActive": true
+  },
+  {
+    "id": 2,
+    "firstName": "Ananya",
+    "lastName": "Verma",
+    "age": 25,
+    "gender": "Female",
+    "email": "ananya.verma@example.com",
+    "phone": "+91-9123456780",
+    "city": "Bengaluru",
+    "state": "Karnataka",
+    "country": "India",
+    "occupation": "UI/UX Designer",
+    "profileImage": "https://example.com/images/ananya.png",
+    "isActive": true
+  },
+  {
+    "id": 3,
+    "firstName": "Rohit",
+    "lastName": "Mehta",
+    "age": 34,
+    "gender": "Male",
+    "email": "rohit.mehta@example.com",
+    "phone": "+91-9988776655",
+    "city": "Delhi",
+    "state": "Delhi",
+    "country": "India",
+    "occupation": "Product Manager",
+    "profileImage": "https://example.com/images/rohit.png",
+    "isActive": false
+  },
+  {
+  "id": 4,
+  "firstName": "Priya",
+  "lastName": "Nair",
+  "age": 29,
+  "gender": "Female",
+  "email": "priya.nair@example.com",
+  "phone": "+91-9012345678",
+  "city": "Kochi",
+  "state": "Kerala",
+  "country": "India",
+  "occupation": "Data Analyst",
+  "profileImage": "https://example.com/images/priya.png",
+  "isActive": true
+}
+]

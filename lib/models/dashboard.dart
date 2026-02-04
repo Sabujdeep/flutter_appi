@@ -1,16 +1,21 @@
+import 'dart:convert';
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:task2/widgets/appbar_widget.dart';
 import 'package:task2/widgets/terminal_card.dart';
 
 class AirportDashboard extends StatefulWidget {
-  const AirportDashboard({Key? key}) : super(key: key);
+  const AirportDashboard({super.key});
 
   @override
   State<AirportDashboard> createState() => _AirportDashboardState();
 }
 
 class _AirportDashboardState extends State<AirportDashboard> {
-  double _sliderValue = 0.5; // 0 = Arrivals, 1 = Departures
+  Future<List<dynamic>> _loadContact() async {
+    final jsonString = await rootBundle.loadString('assets/data/details.json');
+    return json.decode(jsonString);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,13 +35,30 @@ class _AirportDashboardState extends State<AirportDashboard> {
               const DashboardAppBar(),
               SizedBox(
                 height: 220, // FIXED height for the slider
-                child: PageView(
-                  controller: PageController(viewportFraction: 0.9),
-                  children: const [
-                    TerminalCard(),
-                    TerminalCard(),
-                    TerminalCard(),
-                  ],
+
+                child: FutureBuilder(
+                  future: _loadContact(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return const Center(child: Text("No contacts found"));
+                    }
+
+                    final contacts = snapshot.data!;
+
+                    return PageView.builder(
+                      controller: PageController(viewportFraction: 0.9),
+                      itemCount: contacts.length,
+                      itemBuilder: (context, index) {
+                        final c = contacts[index];
+                        final name = "${c['firstName']} ${c['lastName']}";
+
+                        return TerminalCard(name: name, email: c['email']);
+                      },
+                    );
+                  },
                 ),
               ),
             ],
@@ -57,250 +79,250 @@ class _AirportDashboardState extends State<AirportDashboard> {
 
   // Widget _buildTerminalCard()
 
-  Widget _buildFlightStatsWithSlider() {
-    bool showArrivals = _sliderValue < 0.5;
+  // Widget _buildFlightStatsWithSlider() {
+  //   bool showArrivals = _sliderValue < 0.5;
 
-    return Column(
-      children: [
-        // Stats Display (switches between Arrivals and Departures)
-        AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
-          child: showArrivals ? _buildArrivalsStats() : _buildDeparturesStats(),
-        ),
+  //   return Column(
+  //     children: [
+  //       // Stats Display (switches between Arrivals and Departures)
+  //       AnimatedSwitcher(
+  //         duration: const Duration(milliseconds: 300),
+  //         child: showArrivals ? _buildArrivalsStats() : _buildDeparturesStats(),
+  //       ),
 
-        const SizedBox(height: 20),
+  //       const SizedBox(height: 20),
 
-        // Slider
-        Row(
-          children: [
-            Expanded(
-              child: Column(
-                children: [
-                  SliderTheme(
-                    data: SliderThemeData(
-                      trackHeight: 8,
-                      activeTrackColor: const Color(0xFF8B1F9C),
-                      inactiveTrackColor: Colors.grey.shade300,
-                      thumbColor: const Color(0xFF8B1F9C),
-                      thumbShape: const RoundSliderThumbShape(
-                        enabledThumbRadius: 12,
-                      ),
-                      overlayColor: const Color(0xFF8B1F9C).withOpacity(0.2),
-                      overlayShape: const RoundSliderOverlayShape(
-                        overlayRadius: 20,
-                      ),
-                    ),
-                    child: Slider(
-                      value: _sliderValue,
-                      onChanged: (value) {
-                        setState(() {
-                          _sliderValue = value;
-                        });
-                      },
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Arrivals',
-                          style: TextStyle(
-                            color: showArrivals
-                                ? const Color(0xFF8B1F9C)
-                                : Colors.grey,
-                            fontWeight: showArrivals
-                                ? FontWeight.bold
-                                : FontWeight.normal,
-                            fontSize: 14,
-                          ),
-                        ),
-                        Text(
-                          'Departures',
-                          style: TextStyle(
-                            color: !showArrivals
-                                ? const Color(0xFF8B1F9C)
-                                : Colors.grey,
-                            fontWeight: !showArrivals
-                                ? FontWeight.bold
-                                : FontWeight.normal,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
+  //       // Slider
+  //       Row(
+  //         children: [
+  //           Expanded(
+  //             child: Column(
+  //               children: [
+  //                 SliderTheme(
+  //                   data: SliderThemeData(
+  //                     trackHeight: 8,
+  //                     activeTrackColor: const Color(0xFF8B1F9C),
+  //                     inactiveTrackColor: Colors.grey.shade300,
+  //                     thumbColor: const Color(0xFF8B1F9C),
+  //                     thumbShape: const RoundSliderThumbShape(
+  //                       enabledThumbRadius: 12,
+  //                     ),
+  //                     overlayColor: const Color(0xFF8B1F9C).withOpacity(0.2),
+  //                     overlayShape: const RoundSliderOverlayShape(
+  //                       overlayRadius: 20,
+  //                     ),
+  //                   ),
+  //                   child: Slider(
+  //                     value: _sliderValue,
+  //                     onChanged: (value) {
+  //                       setState(() {
+  //                         _sliderValue = value;
+  //                       });
+  //                     },
+  //                   ),
+  //                 ),
+  //                 Padding(
+  //                   padding: const EdgeInsets.symmetric(horizontal: 8),
+  //                   child: Row(
+  //                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                     children: [
+  //                       Text(
+  //                         'Arrivals',
+  //                         style: TextStyle(
+  //                           color: showArrivals
+  //                               ? const Color(0xFF8B1F9C)
+  //                               : Colors.grey,
+  //                           fontWeight: showArrivals
+  //                               ? FontWeight.bold
+  //                               : FontWeight.normal,
+  //                           fontSize: 14,
+  //                         ),
+  //                       ),
+  //                       Text(
+  //                         'Departures',
+  //                         style: TextStyle(
+  //                           color: !showArrivals
+  //                               ? const Color(0xFF8B1F9C)
+  //                               : Colors.grey,
+  //                           fontWeight: !showArrivals
+  //                               ? FontWeight.bold
+  //                               : FontWeight.normal,
+  //                           fontSize: 14,
+  //                         ),
+  //                       ),
+  //                     ],
+  //                   ),
+  //                 ),
+  //               ],
+  //             ),
+  //           ),
+  //         ],
+  //       ),
+  //     ],
+  //   );
+  // }
 
-  Widget _buildArrivalsStats() {
-    return Container(
-      key: const ValueKey('arrivals'),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: const Color(0xFF8B1F9C).withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(
-              Icons.flight_land,
-              color: Color(0xFF8B1F9C),
-              size: 32,
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Arrivals',
-                  style: TextStyle(fontSize: 16, color: Colors.grey),
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: const [
-                    Text(
-                      '255',
-                      style: TextStyle(
-                        fontSize: 36,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      '/699',
-                      style: TextStyle(fontSize: 18, color: Colors.grey),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              const Text(
-                'On Time Arrivals',
-                style: TextStyle(fontSize: 12, color: Colors.grey),
-              ),
-              const SizedBox(height: 4),
-              Row(
-                children: const [
-                  Text(
-                    '71.8%',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  SizedBox(width: 4),
-                  Icon(Icons.arrow_downward, color: Colors.red, size: 20),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(width: 8),
-          const Icon(Icons.chevron_right, color: Colors.grey),
-        ],
-      ),
-    );
-  }
+  // Widget _buildArrivalsStats() {
+  //   return Container(
+  //     key: const ValueKey('arrivals'),
+  //     padding: const EdgeInsets.all(16),
+  //     decoration: BoxDecoration(
+  //       color: Colors.grey.shade50,
+  //       borderRadius: BorderRadius.circular(12),
+  //     ),
+  //     child: Row(
+  //       children: [
+  //         Container(
+  //           padding: const EdgeInsets.all(12),
+  //           decoration: BoxDecoration(
+  //             color: const Color(0xFF8B1F9C).withOpacity(0.1),
+  //             borderRadius: BorderRadius.circular(12),
+  //           ),
+  //           child: const Icon(
+  //             Icons.flight_land,
+  //             color: Color(0xFF8B1F9C),
+  //             size: 32,
+  //           ),
+  //         ),
+  //         const SizedBox(width: 16),
+  //         Expanded(
+  //           child: Column(
+  //             crossAxisAlignment: CrossAxisAlignment.start,
+  //             children: [
+  //               const Text(
+  //                 'Arrivals',
+  //                 style: TextStyle(fontSize: 16, color: Colors.grey),
+  //               ),
+  //               Row(
+  //                 crossAxisAlignment: CrossAxisAlignment.end,
+  //                 children: const [
+  //                   Text(
+  //                     '255',
+  //                     style: TextStyle(
+  //                       fontSize: 36,
+  //                       fontWeight: FontWeight.bold,
+  //                     ),
+  //                   ),
+  //                   Text(
+  //                     '/699',
+  //                     style: TextStyle(fontSize: 18, color: Colors.grey),
+  //                   ),
+  //                 ],
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //         Column(
+  //           crossAxisAlignment: CrossAxisAlignment.end,
+  //           children: [
+  //             const Text(
+  //               'On Time Arrivals',
+  //               style: TextStyle(fontSize: 12, color: Colors.grey),
+  //             ),
+  //             const SizedBox(height: 4),
+  //             Row(
+  //               children: const [
+  //                 Text(
+  //                   '71.8%',
+  //                   style: TextStyle(
+  //                     fontSize: 24,
+  //                     fontWeight: FontWeight.bold,
+  //                     color: Colors.black87,
+  //                   ),
+  //                 ),
+  //                 SizedBox(width: 4),
+  //                 Icon(Icons.arrow_downward, color: Colors.red, size: 20),
+  //               ],
+  //             ),
+  //           ],
+  //         ),
+  //         const SizedBox(width: 8),
+  //         const Icon(Icons.chevron_right, color: Colors.grey),
+  //       ],
+  //     ),
+  //   );
+  // }
 
-  Widget _buildDeparturesStats() {
-    return Container(
-      key: const ValueKey('departures'),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: const Color(0xFF8B1F9C).withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(
-              Icons.flight_takeoff,
-              color: Color(0xFF8B1F9C),
-              size: 32,
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Departures',
-                  style: TextStyle(fontSize: 16, color: Colors.grey),
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: const [
-                    Text(
-                      '261',
-                      style: TextStyle(
-                        fontSize: 36,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      '/694',
-                      style: TextStyle(fontSize: 18, color: Colors.grey),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              const Text(
-                'On Time Departures',
-                style: TextStyle(fontSize: 12, color: Colors.grey),
-              ),
-              const SizedBox(height: 4),
-              Row(
-                children: const [
-                  Text(
-                    '71.3%',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  SizedBox(width: 4),
-                  Icon(Icons.arrow_upward, color: Colors.green, size: 20),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(width: 8),
-          const Icon(Icons.chevron_right, color: Colors.grey),
-        ],
-      ),
-    );
-  }
+  // Widget _buildDeparturesStats() {
+  //   return Container(
+  //     key: const ValueKey('departures'),
+  //     padding: const EdgeInsets.all(16),
+  //     decoration: BoxDecoration(
+  //       color: Colors.grey.shade50,
+  //       borderRadius: BorderRadius.circular(12),
+  //     ),
+  //     child: Row(
+  //       children: [
+  //         Container(
+  //           padding: const EdgeInsets.all(12),
+  //           decoration: BoxDecoration(
+  //             color: const Color(0xFF8B1F9C).withOpacity(0.1),
+  //             borderRadius: BorderRadius.circular(12),
+  //           ),
+  //           child: const Icon(
+  //             Icons.flight_takeoff,
+  //             color: Color(0xFF8B1F9C),
+  //             size: 32,
+  //           ),
+  //         ),
+  //         const SizedBox(width: 16),
+  //         Expanded(
+  //           child: Column(
+  //             crossAxisAlignment: CrossAxisAlignment.start,
+  //             children: [
+  //               const Text(
+  //                 'Departures',
+  //                 style: TextStyle(fontSize: 16, color: Colors.grey),
+  //               ),
+  //               Row(
+  //                 crossAxisAlignment: CrossAxisAlignment.end,
+  //                 children: const [
+  //                   Text(
+  //                     '261',
+  //                     style: TextStyle(
+  //                       fontSize: 36,
+  //                       fontWeight: FontWeight.bold,
+  //                     ),
+  //                   ),
+  //                   Text(
+  //                     '/694',
+  //                     style: TextStyle(fontSize: 18, color: Colors.grey),
+  //                   ),
+  //                 ],
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //         Column(
+  //           crossAxisAlignment: CrossAxisAlignment.end,
+  //           children: [
+  //             const Text(
+  //               'On Time Departures',
+  //               style: TextStyle(fontSize: 12, color: Colors.grey),
+  //             ),
+  //             const SizedBox(height: 4),
+  //             Row(
+  //               children: const [
+  //                 Text(
+  //                   '71.3%',
+  //                   style: TextStyle(
+  //                     fontSize: 24,
+  //                     fontWeight: FontWeight.bold,
+  //                     color: Colors.black87,
+  //                   ),
+  //                 ),
+  //                 SizedBox(width: 4),
+  //                 Icon(Icons.arrow_upward, color: Colors.green, size: 20),
+  //               ],
+  //             ),
+  //           ],
+  //         ),
+  //         const SizedBox(width: 8),
+  //         const Icon(Icons.chevron_right, color: Colors.grey),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   Widget _buildQuickAccess() {
     return Column(
