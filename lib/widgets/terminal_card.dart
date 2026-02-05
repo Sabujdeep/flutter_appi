@@ -28,7 +28,7 @@ class TerminalCard extends StatelessWidget {
           const Padding(
             padding: EdgeInsets.all(20),
             child: Text(
-              'Details',
+              'Clients',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
           ),
